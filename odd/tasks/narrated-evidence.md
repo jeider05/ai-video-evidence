@@ -31,3 +31,4 @@ Playwright headless recording first; ffmpeg gdigrab over ego-browser stays a lat
 - L1 — User (2026-11-12): "como podemos hacer para que ademas de tomar evidencia con fotos tambien puedas narrar una funcionalidad o un bug ? investiga"
 - L2 — User accepted the proposal ("si esta bien"): Playwright headless first, gdigrab as a later alternative mode; CLI + skill in this folder.
 - L3 — Verified 2026-11-12: 15/15 unit tests; bug demo end-to-end (55.0s recording -> 49.6s MP4, h264+aac+mov_text, mean -21.7 dB); frames checked. Added `narrate login` (storageState) for S11. Deepgram not exercised (no key). gdigrab mode deferred.
+- L4 — User (2026-11-12): "antes del sigueinte paso neecsito una documentcion con el flujo como tal y tecnologias  y una documentaicion del flujo del codigo osea serian dos docuemntoos" -> docs/workflow.md, docs/code-flow.md (worker, English).

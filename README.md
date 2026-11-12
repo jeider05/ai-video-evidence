@@ -20,6 +20,13 @@ node bin/narrate.mjs run examples/bug-demo/narration.json
 # -> examples/bug-demo/out/narration/narration.mp4 + narration.srt
 ```
 
+## Documentation
+
+| Doc | Read it to |
+|---|---|
+| [docs/workflow.md](docs/workflow.md) | Understand the end-to-end process, the technologies, the artifacts and the security rules |
+| [docs/code-flow.md](docs/code-flow.md) | Maintain or extend the code: module map, call paths, timeline math, how to add actions or TTS engines |
+
 ## Commands
 
 | Command | What it does | Writes to `out/<name>/` |
