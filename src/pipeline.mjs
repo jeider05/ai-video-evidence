@@ -23,7 +23,7 @@ export function load(narrationPath, { out } = {}) {
   const workDir = resolve(out ?? join(baseDir, 'out', name));
   mkdirSync(workDir, { recursive: true });
   const output = narration.output ? resolve(baseDir, narration.output) : join(workDir, `${name}.mp4`);
-  return { narration, baseDir, workDir, output, cacheDir: join(baseDir, '.cache', 'tts') };
+  return { narration, file, baseDir, workDir, output, cacheDir: join(baseDir, '.cache', 'tts') };
 }
 
 const readJson = (path, hint) => {
@@ -37,7 +37,14 @@ export async function tts(job, log) {
   return manifest;
 }
 
+/** Video file written by `record`, named in scenes.json (runs before T7 had no field: recording.webm). */
+export const recordedVideo = (marks) => marks.video ?? 'recording.webm';
+
 export async function record(job, log) {
+  if (job.narration.recorder === 'gdigrab') {
+    const { recordGdigrab } = await import('./gdigrab.mjs');
+    return recordGdigrab(job, log);
+  }
   const { recordScenes } = await import('./record.mjs');
   const manifest = readJson(join(job.workDir, 'tts.json'), 'narrate tts');
   return recordScenes(job.narration, { baseDir: job.baseDir, workDir: job.workDir, tts: manifest, log });
@@ -71,7 +78,7 @@ export async function login(url, save, log) {
 export async function assemble(job, log) {
   const manifest = readJson(join(job.workDir, 'tts.json'), 'narrate tts');
   const marks = readJson(join(job.workDir, 'scenes.json'), 'narrate record');
-  const video = join(job.workDir, 'recording.webm');
+  const video = join(job.workDir, recordedVideo(marks));
   const total = Math.min(marks.total, await probeDuration(video));
 
   const byId = new Map(job.narration.scenes.map((s) => [s.id, s]));

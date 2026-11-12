@@ -9,7 +9,10 @@ const USAGE = `Usage: narrate <command> <narration.json> [--out <dir>]
 Commands:
   validate   Check the script and print its scenes
   tts        Synthesize each scene's "say" (edge-tts -> Deepgram -> SAPI) into tts.json
-  record     Record the scenes with Playwright; writes recording.webm, scenes.json, evidence.json
+  record     Record the scenes. recorder "playwright" (default): headless Chrome,
+             writes recording.webm, scenes.json, evidence.json.
+             recorder "gdigrab" (Windows): ego-browser drives the page and ffmpeg
+             grabs its window; writes recording.mp4, scenes.json, empty evidence.json
   assemble   Mix narration, speed-ups and captions into <name>.mp4 + <name>.srt
   run        tts + record + assemble
   login      Open Chrome so you sign in; saves cookies + localStorage to
@@ -19,7 +22,8 @@ Commands:
 
 Environment:
   DEEPGRAM_API_KEY / DEEPGRAM_API_KEY_FILE   enable the Deepgram fallback
-  NARRATE_PYTHON                             Python with edge-tts (default: python)`;
+  NARRATE_PYTHON                             Python with edge-tts (default: python)
+  NARRATE_FFMPEG / NARRATE_EGO_BROWSER       ffmpeg and ego-browser for recorder gdigrab`;
 
 const log = (msg) => console.log(msg);
 

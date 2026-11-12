@@ -4,7 +4,7 @@ description: "Trigger: video narrado, narrar bug, narrar funcionalidad, video co
 license: Apache-2.0
 metadata:
   author: "jsilgado"
-  version: "1.0"
+  version: "1.1"
 ---
 
 ## Activation Contract
@@ -30,7 +30,9 @@ The CLI lives in `C:\Users\DESARROLLADORES\Documents\personal\ai-video-evidence`
 | Bug report | `assets/bug-template.json`: contexto → pasos → actual (red callout) → esperado (green) → evidencia → impacto |
 | Feature / PR demo | `assets/feature-template.json`: qué resuelve → recorrido → casos borde |
 | Backend wait or slow load | Put it in its own scene with `"speedup": 4`; only the part after the narration is accelerated |
-| Native `<select>` popup or the user's live ego-browser session must appear | Playwright cannot show it; say so and use screenshots or an ffmpeg gdigrab capture instead |
+| Native `<select>` popup, OS dialog, or the app needs the user's real ego session (Trip2 logged in) | `"recorder": "gdigrab"` (Windows only). Before running: the user signs in to the app in ego, keeps monitor 1 free, and is ready to switch ego to task space `narrate-<name>` when the runner asks (ego keeps Agent windows hidden; the runner raises it with Win32 but ego only paints the selected space). Unattended run = use `playwright` |
+| gdigrab script uses `call`/`actionsModule` or `waitForResponse` | Not supported (validation error): use a real backend or a local server (`examples/bug-demo/server.mjs`) and `waitFor` on the UI result |
+| gdigrab run fails with "never became visible on screen" | The task-space window was hidden or covered. Ask the user to select the space in ego and rerun; do not claim or reuse the user's own space or tabs |
 | Need mocking or complex steps | `actionsModule` with exported `async (page, ctx)` functions, called with `{ "call": "name" }` |
 | Evidence step of a bug | Read `out/<name>/evidence.json` (failed responses, console errors) from a first run and put the real request/status in the `evidencia` callout |
 
@@ -38,16 +40,16 @@ The CLI lives in `C:\Users\DESARROLLADORES\Documents\personal\ai-video-evidence`
 
 1. Copy the matching template next to the work (Trip2: `pr-assets/<name>.json`) and fill `title`, `baseUrl`, scenes, selectors.
 2. `node bin/narrate.mjs validate <file>`; fix every reported path.
-3. If the app needs a session: ask the user to run `node bin/narrate.mjs login <url> --save pr-assets/state.json`, then set `browser.storageState`.
+3. If the app needs a session: with `playwright`, ask the user to run `node bin/narrate.mjs login <url> --save pr-assets/state.json`, then set `browser.storageState`. With `gdigrab`, the user signs in to the app in ego beforehand (Trip2 path: `baseUrl` = the local Trip2 URL, `recorder: "gdigrab"`, short scenes, no `call`).
 4. `node bin/narrate.mjs run <file>` (or `tts`, `record`, `assemble` separately; `assemble` alone re-renders without recording again).
-5. Check the result: extract frames at scene starts (`scenes.json`) with `ffmpeg -ss <t> -frames:v 1` and look at them; confirm the audio with `volumedetect`; read `evidence.json`.
+5. Check the result: extract frames at scene starts (`scenes.json`) with `ffmpeg -ss <t> -frames:v 1` and look at them; confirm the audio with `volumedetect`; read `evidence.json` (empty with gdigrab). With gdigrab, confirm the frames show only the page (no desktop, taskbar or other window on top).
 6. Deliver `<name>.mp4` (H.264 + AAC + soft subtitles) and `<name>.srt`. For Trip2 PRs follow `trip2-pr-delivery`: artifacts in `pr-assets/`, attached to the PR, listed in the description.
 
 ## Action reference
 
-`goto` (relative to `baseUrl`), `click`, `hover`, `check` (selector), `fill`/`select` `{selector, value}`, `press` `{key, selector?}`, `scroll` `{selector? | y?}`, `wait` (ms), `waitFor` (selector or `{selector, state, timeoutMs}`), `waitForResponse` (URL substring, also accepts a response already seen in the scene), `overlay` `{kind: actual|expected|info, title?, text | html, durationMs?}`, `screenshot` (name), `call` (export of `actionsModule`). Selectors are Playwright locators (`#id`, `text=Guardar`, `role=button[name="Guardar"]`).
+`goto` (relative to `baseUrl`), `click`, `hover`, `check` (selector), `fill`/`select` `{selector, value}`, `press` `{key, selector?}`, `scroll` `{selector? | y?}`, `wait` (ms), `waitFor` (selector or `{selector, state, timeoutMs}`), `waitForResponse` (URL substring, also accepts a response already seen in the scene), `overlay` `{kind: actual|expected|info, title?, text | html, durationMs?}`, `screenshot` (name), `call` (export of `actionsModule`). Selectors are Playwright locators (`#id`, `text=Guardar`, `role=button[name="Guardar"]`). With `recorder: "gdigrab"` selectors go to ego as-is: raw CSS, `text=...`, `loc=role:button[name='Guardar']`, `@ref`; `call` and `waitForResponse` are rejected; `check`, `scroll {selector}` and `waitFor` use `page.evaluate`/`waitForFunction` for raw CSS selectors.
 
-Scene fields: `id` (slug), `say`, `chapter` `{title, description?, durationMs?}`, `actions`, `speedup`. Top level: `title`, `baseUrl`, `viewport`, `tts` `{engine: edge|deepgram|sapi, voice, rate, fallback}`, `browser` `{channel, headless, locale, storageState}`, `captions`, `showActions`, `gapMs`, `actionsModule`, `output`.
+Scene fields: `id` (slug), `say`, `chapter` `{title, description?, durationMs?}`, `actions`, `speedup`. Top level: `title`, `baseUrl`, `recorder` (`playwright` | `gdigrab`), `gdigrab` `{framerate: 25, drawMouse: true, tab: "new"}`, `viewport` (Playwright only), `tts` `{engine: edge|deepgram|sapi, voice, rate, fallback}`, `browser` `{channel, headless, locale, storageState}`, `captions`, `showActions`, `gapMs`, `actionsModule`, `output`.
 
 ## Output Contract
 
@@ -57,4 +59,4 @@ Return: video path and duration, SRT path, TTS engine used (and any fallback), s
 
 - `assets/bug-template.json`, `assets/feature-template.json` — script skeletons.
 - Repository `README.md` — install, commands, how sync works.
-- `examples/bug-demo/` — complete working example with a mocked backend.
+- `examples/bug-demo/` — complete working example with a mocked backend (`narration.json`, Playwright) and the gdigrab variant (`narration-ego.json` + `server.mjs`).

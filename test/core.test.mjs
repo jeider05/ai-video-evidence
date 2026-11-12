@@ -4,6 +4,7 @@ import { validateNarration } from '../src/schema.mjs';
 import { buildTimeline } from '../src/timeline.mjs';
 import { toSrt, splitCue } from '../src/srt.mjs';
 import { buildAssembleArgs } from '../src/ffmpeg.mjs';
+import { recordedVideo } from '../src/pipeline.mjs';
 
 const minimal = { title: 'Demo', scenes: [{ id: 'intro', say: 'Hola' }] };
 
@@ -171,4 +172,59 @@ test('buildAssembleArgs without audio maps only video', () => {
   const s = args.join(' ');
   assert.doesNotMatch(s, /amix|-c:a|aout/);
   assert.match(s, /-map \[vout\]/);
+});
+
+test('validateNarration defaults to the playwright recorder and keeps every action (preserve)', () => {
+  const n = validateNarration({
+    title: 't',
+    scenes: [{ id: 'a', actions: [{ call: 'mock' }, { waitForResponse: '/api' }] }],
+  });
+  assert.equal(n.recorder, 'playwright');
+  assert.deepEqual(n.gdigrab, { framerate: 25, drawMouse: true, tab: 'new' });
+});
+
+test('validateNarration accepts recorder gdigrab with its options', () => {
+  const n = validateNarration({
+    title: 't',
+    recorder: 'gdigrab',
+    gdigrab: { framerate: 30, drawMouse: false },
+    scenes: [{ id: 'a', actions: [{ goto: '/' }, { click: '#x' }, { waitFor: '#ok' }, { overlay: { text: 'x' } }] }],
+  });
+  assert.equal(n.recorder, 'gdigrab');
+  assert.deepEqual(n.gdigrab, { framerate: 30, drawMouse: false, tab: 'new' });
+});
+
+test('validateNarration rejects bad recorder options and unsupported gdigrab actions', () => {
+  assert.throws(
+    () => validateNarration({
+      title: 't',
+      recorder: 'obs',
+      gdigrab: { framerate: 0, drawMouse: 'yes', tab: 'active' },
+      scenes: [{ id: 'a' }],
+    }),
+    (err) => {
+      assert.match(err.message, /recorder: must be one of playwright, gdigrab/);
+      assert.match(err.message, /gdigrab\.framerate: must be a number > 0/);
+      assert.match(err.message, /gdigrab\.drawMouse: must be a boolean/);
+      assert.match(err.message, /gdigrab\.tab: must be "new"/);
+      return true;
+    },
+  );
+  assert.throws(
+    () => validateNarration({
+      title: 't',
+      recorder: 'gdigrab',
+      scenes: [{ id: 'a', actions: [{ goto: '/' }, { call: 'mock' }] }, { id: 'b', actions: [{ waitForResponse: '/api' }] }],
+    }),
+    (err) => {
+      assert.match(err.message, /scenes\[0\]\.actions\[1\]: "call" is not supported with recorder gdigrab/);
+      assert.match(err.message, /scenes\[1\]\.actions\[0\]: "waitForResponse" is not supported with recorder gdigrab/);
+      return true;
+    },
+  );
+});
+
+test('recordedVideo reads the video name from scenes.json with a webm fallback', () => {
+  assert.equal(recordedVideo({ video: 'recording.mp4', total: 1, scenes: [] }), 'recording.mp4');
+  assert.equal(recordedVideo({ total: 1, scenes: [] }), 'recording.webm');
 });

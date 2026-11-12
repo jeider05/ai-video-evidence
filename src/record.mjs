@@ -5,29 +5,9 @@ import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
+import { calloutHtml, captionHtml } from './overlays.mjs';
 
-const KIND_STYLE = {
-  actual: { color: '#b42318', label: 'Actual' },
-  expected: { color: '#067647', label: 'Esperado' },
-  info: { color: '#175cd3', label: 'Nota' },
-};
-
-const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-
-export function captionHtml(text) {
-  return `<div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);max-width:80%;` +
-    `padding:10px 18px;border-radius:8px;background:rgba(16,24,40,.82);color:#fff;` +
-    `font:500 20px/1.35 system-ui,Segoe UI,sans-serif;text-align:center;">${escapeHtml(text)}</div>`;
-}
-
-export function calloutHtml({ kind = 'info', title, text, html }) {
-  const k = KIND_STYLE[kind] ?? KIND_STYLE.info;
-  const body = html ?? `<div>${escapeHtml(text)}</div>`;
-  return `<div style="position:fixed;top:24px;left:24px;max-width:46%;padding:14px 18px;border-radius:10px;` +
-    `background:#fff;border:3px solid ${k.color};box-shadow:0 8px 24px rgba(0,0,0,.25);` +
-    `font:500 18px/1.4 system-ui,Segoe UI,sans-serif;color:#101828;">` +
-    `<div style="font-weight:700;color:${k.color};margin-bottom:6px;">${escapeHtml(title ?? k.label)}</div>${body}</div>`;
-}
+export { calloutHtml, captionHtml };
 
 export async function recordScenes(narration, { baseDir, workDir, tts, log = () => {} }) {
   const actionsModule = narration.actionsModule
@@ -92,7 +72,9 @@ export async function recordScenes(narration, { baseDir, workDir, tts, log = () 
     await context.close();
     await browser.close();
     const rel = (e) => ({ ...e, at: Math.round(((e.at - t0) / 1000) * 1000) / 1000 });
-    writeFileSync(join(workDir, 'scenes.json'), JSON.stringify({ total, scenes: marks }, null, 2));
+    writeFileSync(join(workDir, 'scenes.json'), JSON.stringify({
+      total, video: 'recording.webm', recorder: 'playwright', scenes: marks,
+    }, null, 2));
     writeFileSync(join(workDir, 'evidence.json'), JSON.stringify({
       responses: evidence.responses.map(rel),
       console: evidence.console.map(rel),

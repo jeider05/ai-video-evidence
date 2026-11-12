@@ -5,6 +5,9 @@ export const ACTIONS = [
   'wait', 'waitFor', 'waitForResponse', 'overlay', 'call', 'screenshot',
 ];
 export const ENGINES = ['edge', 'deepgram', 'sapi'];
+export const RECORDERS = ['playwright', 'gdigrab'];
+/** Actions that need Playwright pages, so recorder gdigrab (ego-browser) cannot run them. */
+export const GDIGRAB_UNSUPPORTED = ['call', 'waitForResponse'];
 export const DEFAULT_VOICES = {
   edge: 'es-CO-SalomeNeural',
   deepgram: 'aura-2-celeste-es',
@@ -52,6 +55,19 @@ export function validateNarration(input) {
     err('browser.storageState', 'must be a path string');
   }
 
+  const recorder = input.recorder ?? 'playwright';
+  if (!RECORDERS.includes(recorder)) err('recorder', `must be one of ${RECORDERS.join(', ')}`);
+  const gdigrabIn = input.gdigrab ?? {};
+  if (!isObj(gdigrabIn)) err('gdigrab', 'must be an object');
+  const gdigrab = {
+    framerate: gdigrabIn.framerate ?? 25,
+    drawMouse: gdigrabIn.drawMouse ?? true,
+    tab: gdigrabIn.tab ?? 'new',
+  };
+  if (!isNum(gdigrab.framerate) || gdigrab.framerate <= 0) err('gdigrab.framerate', 'must be a number > 0');
+  if (typeof gdigrab.drawMouse !== 'boolean') err('gdigrab.drawMouse', 'must be a boolean');
+  if (gdigrab.tab !== 'new') err('gdigrab.tab', 'must be "new"');
+
   for (const key of ['captions', 'showActions']) {
     if (input[key] !== undefined && typeof input[key] !== 'boolean') err(key, 'must be a boolean');
   }
@@ -80,7 +96,7 @@ export function validateNarration(input) {
       if (!isNum(speedup) || speedup < 1) err(`${p}.speedup`, 'must be a number >= 1');
       const actions = s.actions ?? [];
       if (!Array.isArray(actions)) err(`${p}.actions`, 'must be an array');
-      else actions.forEach((a, j) => validateAction(a, `${p}.actions[${j}]`, err));
+      else actions.forEach((a, j) => validateAction(a, `${p}.actions[${j}]`, err, recorder));
       scenes.push({ ...s, actions: Array.isArray(actions) ? actions : [], speedup });
     });
   }
@@ -92,6 +108,8 @@ export function validateNarration(input) {
     viewport,
     tts,
     browser,
+    recorder,
+    gdigrab,
     captions: input.captions ?? true,
     showActions: input.showActions ?? true,
     gapMs,
@@ -99,12 +117,15 @@ export function validateNarration(input) {
   };
 }
 
-function validateAction(a, path, err) {
+function validateAction(a, path, err, recorder) {
   if (!isObj(a)) return err(path, 'must be an object with one action key');
   const keys = Object.keys(a);
   if (keys.length !== 1) return err(path, `exactly one action key, got ${keys.join(', ') || 'none'}`);
   const [key] = keys;
   if (!ACTIONS.includes(key)) return err(path, `unknown action "${key}"`);
+  if (recorder === 'gdigrab' && GDIGRAB_UNSUPPORTED.includes(key)) {
+    return err(path, `"${key}" is not supported with recorder gdigrab`);
+  }
   const v = a[key];
   switch (key) {
     case 'wait':
