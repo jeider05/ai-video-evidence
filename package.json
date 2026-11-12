@@ -1,0 +1,19 @@
+{
+  "name": "ai-video-evidence",
+  "version": "1.0.0",
+  "description": "Narrated video evidence (voice + screen) for features and bugs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "playwright": "^1.65.0"
+  },
+  "type": "module",
+  "bin": {
+    "narrate": "bin/narrate.mjs"
+  }
+}
