@@ -1,0 +1,41 @@
+{
+  "title": "Funcionalidad: <nombre>",
+  "baseUrl": "http://localhost:4200/",
+  "browser": { "storageState": "state.json" },
+  "scenes": [
+    {
+      "id": "problema",
+      "chapter": { "title": "<Nombre de la funcionalidad>", "description": "<qué problema resuelve>" },
+      "say": "<Qué resuelve y para quién, en una o dos frases>.",
+      "actions": [{ "goto": "/<ruta>" }]
+    },
+    {
+      "id": "recorrido-1",
+      "say": "<Primer paso del flujo principal>.",
+      "actions": [{ "click": "<selector>" }]
+    },
+    {
+      "id": "recorrido-2",
+      "say": "<Siguiente paso y su resultado visible>.",
+      "actions": [
+        { "fill": { "selector": "<selector>", "value": "QA_<dato>" } },
+        { "click": "<selector>" },
+        { "waitFor": "<selector del resultado>" }
+      ]
+    },
+    {
+      "id": "borde",
+      "chapter": { "title": "Casos borde" },
+      "say": "<Qué pasa con un dato inválido o vacío>.",
+      "actions": [
+        { "fill": { "selector": "<selector>", "value": "" } },
+        { "click": "<selector>" },
+        { "overlay": { "kind": "info", "text": "<validación que se muestra>" } }
+      ]
+    },
+    {
+      "id": "cierre",
+      "say": "<Resumen: qué cambió y dónde lo encuentra el usuario>."
+    }
+  ]
+}

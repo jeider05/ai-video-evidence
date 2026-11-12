@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // narrate: narrated video evidence (voice + screen) for features and bugs.
 
-import { assemble, load, record, tts } from '../src/pipeline.mjs';
+import { assemble, load, login, record, tts } from '../src/pipeline.mjs';
 
 const USAGE = `Usage: narrate <command> <narration.json> [--out <dir>]
+       narrate login <url> [--save <state.json>]
 
 Commands:
   validate   Check the script and print its scenes
@@ -11,6 +12,10 @@ Commands:
   record     Record the scenes with Playwright; writes recording.webm, scenes.json, evidence.json
   assemble   Mix narration, speed-ups and captions into <name>.mp4 + <name>.srt
   run        tts + record + assemble
+  login      Open Chrome so you sign in; saves cookies + localStorage to
+             .cache/auth/state.json (or --save) until you close the window.
+             Point browser.storageState at it. The file holds a live session:
+             keep it out of git and delete it when done.
 
 Environment:
   DEEPGRAM_API_KEY / DEEPGRAM_API_KEY_FILE   enable the Deepgram fallback
@@ -22,6 +27,20 @@ async function main(argv) {
   const [command, file, ...rest] = argv;
   if (!command || command === '-h' || command === '--help') {
     console.log(USAGE);
+    return 0;
+  }
+  if (command === 'login') {
+    if (!file) {
+      console.error(USAGE);
+      return 2;
+    }
+    const saveIndex = rest.indexOf('--save');
+    const save = saveIndex >= 0 ? rest[saveIndex + 1] : '.cache/auth/state.json';
+    if (!save) {
+      console.error('--save needs a file');
+      return 2;
+    }
+    await login(file, save, log);
     return 0;
   }
   const commands = ['validate', 'tts', 'record', 'assemble', 'run'];

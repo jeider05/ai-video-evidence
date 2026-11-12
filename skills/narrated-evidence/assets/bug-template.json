@@ -1,0 +1,47 @@
+{
+  "title": "Bug: <qué falla, en una línea>",
+  "baseUrl": "http://localhost:4200/",
+  "browser": { "storageState": "state.json" },
+  "scenes": [
+    {
+      "id": "contexto",
+      "chapter": { "title": "Bug: <título corto>", "description": "<síntoma en una frase>" },
+      "say": "En este video reproducimos <el bug>: <síntoma>.",
+      "actions": [{ "goto": "/<ruta>" }]
+    },
+    {
+      "id": "pasos",
+      "say": "<Lo que hacemos, en el orden en que pasa en pantalla>.",
+      "actions": [
+        { "fill": { "selector": "<selector>", "value": "QA_<dato>" } },
+        { "click": "<selector del botón>" }
+      ]
+    },
+    {
+      "id": "espera",
+      "say": "<El sistema procesa la petición>.",
+      "speedup": 4,
+      "actions": [{ "waitFor": "<selector del resultado>" }]
+    },
+    {
+      "id": "actual",
+      "say": "Resultado actual: <lo que pasa>.",
+      "actions": [{ "overlay": { "kind": "actual", "text": "<lo que pasa>" } }, { "screenshot": "actual" }]
+    },
+    {
+      "id": "esperado",
+      "say": "Resultado esperado: <lo que debería pasar>.",
+      "actions": [{ "overlay": { "kind": "expected", "text": "<lo que debería pasar>" } }]
+    },
+    {
+      "id": "evidencia",
+      "say": "La evidencia: <request y estado, o el error de consola>.",
+      "actions": [{ "overlay": { "kind": "info", "title": "Evidencia", "html": "<code>POST /api/... → 500</code>" } }]
+    },
+    {
+      "id": "impacto",
+      "chapter": { "title": "Impacto", "description": "<a quién afecta y cómo>" },
+      "say": "Impacto: <consecuencia para el usuario o el negocio>."
+    }
+  ]
+}
