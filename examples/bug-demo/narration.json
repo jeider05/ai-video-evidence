@@ -1,0 +1,49 @@
+{
+  "title": "Bug: el formulario de pasajeros muestra éxito aunque el guardado falla",
+  "baseUrl": "http://demo.local/",
+  "actionsModule": "actions.mjs",
+  "tts": { "engine": "edge", "voice": "es-CO-SalomeNeural" },
+  "scenes": [
+    {
+      "id": "contexto",
+      "chapter": { "title": "Bug: guardado falso en Pasajeros", "description": "El formulario confirma el guardado aunque el backend responde 500" },
+      "say": "En este video reproducimos un bug del formulario de pasajeros: la aplicación confirma el guardado aunque el servidor rechazó la petición.",
+      "actions": [{ "call": "mockServer" }, { "goto": "/" }]
+    },
+    {
+      "id": "pasos",
+      "say": "Creamos un pasajero nuevo con un nombre largo y un teléfono, y presionamos Guardar.",
+      "actions": [
+        { "fill": { "selector": "#name", "value": "QA_Pasajero Con Un Nombre Demasiado Largo" } },
+        { "fill": { "selector": "#phone", "value": "3001234567" } },
+        { "click": "#save" }
+      ]
+    },
+    {
+      "id": "espera",
+      "say": "El backend tarda unos segundos en responder.",
+      "speedup": 4,
+      "actions": [{ "waitFor": "#toast.ok" }]
+    },
+    {
+      "id": "actual",
+      "say": "Resultado actual: aparece el mensaje Pasajero guardado correctamente.",
+      "actions": [{ "overlay": { "kind": "actual", "text": "Muestra «Pasajero guardado correctamente»" } }, { "screenshot": "actual" }]
+    },
+    {
+      "id": "esperado",
+      "say": "Resultado esperado: un mensaje de error, y que el formulario conserve los datos para corregirlos.",
+      "actions": [{ "overlay": { "kind": "expected", "text": "Mensaje de error y el formulario conserva los datos" } }]
+    },
+    {
+      "id": "evidencia",
+      "say": "La evidencia: la petición POST a passengers respondió con estado quinientos, y la consola registra el error.",
+      "actions": [{ "overlay": { "kind": "info", "title": "Evidencia", "html": "<code>POST /api/passengers → 500</code><br><code>{\"error\":\"name too long\"}</code>" } }]
+    },
+    {
+      "id": "impacto",
+      "chapter": { "title": "Impacto", "description": "El operador cree que el pasajero quedó creado y no lo vuelve a intentar" },
+      "say": "Impacto: el operador cree que el pasajero quedó creado, pero no existe, y no lo vuelve a intentar."
+    }
+  ]
+}
