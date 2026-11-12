@@ -17,6 +17,10 @@ Playwright headless recording first; ffmpeg gdigrab over ego-browser stays a lat
 - S10 — "una **skill `narrated-evidence`** que me diga cuándo y cómo usarlo, cómo escribir el guion de bug o feature, y que se conecte con `trip2-pr-delivery`."
 - S11 — Login: Playwright headless where "el login se hace inyectando la sesión".
 
+- S12 — gdigrab mode: "grabaría la **ventana real de ego-browser**, con tu sesión ya logueada, mientras yo la manejo"; "un `"recorder": "gdigrab"` en el guion. Usaría el mismo sistema de escenas, voz y ensamblado, pero cambiaría la fuente del video."
+- S13 — gdigrab lacks Playwright overlays ("Chapters, cursor animado, recuadros ... No vienen incluidos; habría que inyectarlos en la página"); must account for display scaling ("en tu monitor al 125%: viewport 1536×672 ↔ 1920×840 físicos").
+- S14 — Then: "despues hacemos una pureb con una narracion breve de trip2".
+
 ## Tasks
 
 - T1 — S2,S4,S5,S7,S8 — inline — core pure modules (schema validation, timeline, ffmpeg graph, SRT) with node:test — commit: 64791d6 (done)
@@ -26,9 +30,14 @@ Playwright headless recording first; ffmpeg gdigrab over ego-browser stays a lat
 - T5 — S9 — inline — demo example (local page with a fake bug) and end-to-end video check — commit: 76bcb71 (done)
 - T6 — S9,S10 — inline — skill `skills/narrated-evidence/SKILL.md`, templates, README — commit: 04b5e66 (done)
 
+- T7 — S12,S13 — worker — gdigrab recorder driving ego-browser (runner via `ego-browser nodejs`, region capture, DOM overlays) + tests + docs — commit: 194471b (implemented; live capture unverified)
+- T8 — S14 — inline — brief Trip2 narration trial in ego-browser — commit: n/a
+
 ## Log
 
 - L1 — User (2026-11-12): "como podemos hacer para que ademas de tomar evidencia con fotos tambien puedas narrar una funcionalidad o un bug ? investiga"
 - L2 — User accepted the proposal ("si esta bien"): Playwright headless first, gdigrab as a later alternative mode; CLI + skill in this folder.
 - L3 — Verified 2026-11-12: 15/15 unit tests; bug demo end-to-end (55.0s recording -> 49.6s MP4, h264+aac+mov_text, mean -21.7 dB); frames checked. Added `narrate login` (storageState) for S11. Deepgram not exercised (no key). gdigrab mode deferred.
 - L4 — User (2026-11-12): "antes del sigueinte paso neecsito una documentcion con el flujo como tal y tecnologias  y una documentaicion del flujo del codigo osea serian dos docuemntoos" -> docs/workflow.md, docs/code-flow.md (worker, English).
+- L5 — User (2026-11-12): "ok implrmnatlo y despues hacemos una pureb con una narracion breve de trip2" (after confirming gdigrab is free).
+- L6 — T7 worker result 2026-11-12: 29/29 tests, Playwright regression OK (49.92s MP4). Live gdigrab FAILED unattended: ego 0.6.2.7 keeps agent space windows hidden/unpainted even after ShowWindow; runner now waits 60s for the user to select space narrate-<name>. S13 covered, S12 pending an attended run.
