@@ -99,3 +99,7 @@ See `skills/narrated-evidence/SKILL.md` for the full action reference, and the b
 - ego lite (0.6.2.7) keeps Agent task-space windows hidden; only the space selected in its UI is shown. The runner shows the window with Win32 `ShowWindow`, but ego does not paint it that way: in our tests the frame stayed dark until the space is selected in ego. The runner then waits 60 s, asking you to switch ego to space `narrate-<name>`, and fails if the page never appears. Forcing the window visible can leave ego's space switcher out of sync until you click a space.
 - gdigrab mode collects no `evidence.json` (no network/console listeners): read the evidence from a Playwright run or the DevTools of ego.
 - Never type passwords in gdigrab mode either: sign in to the app in ego beforehand; the runner's task space opens in your default ego profile (not yet verified against a real login).
+
+## License
+
+MIT, see [LICENSE](LICENSE).

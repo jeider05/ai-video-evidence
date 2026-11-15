@@ -12,7 +12,7 @@
     "agent-skill"
   ],
   "author": "jsilgado",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jeider05/ai-video-evidence.git"
@@ -31,7 +31,8 @@
     "examples/bug-demo/*.mjs",
     "examples/bug-demo/*.json",
     "examples/bug-demo/app/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "node --test \"test/*.test.mjs\""

@@ -1,7 +1,7 @@
 ---
 name: narrated-evidence
 description: "Trigger: video narrado, narrar bug, narrar funcionalidad, video con voz, evidencia en video, demo narrada, narrated video. Record narrated screen videos of a feature or bug with the narrate CLI."
-license: Apache-2.0
+license: MIT
 metadata:
   author: "jsilgado"
   version: "1.2"
