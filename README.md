@@ -6,6 +6,17 @@ Narrated video evidence (voice + screen) for features and bugs. You write a `nar
 
 Requirements: Node 22+, ffmpeg and ffprobe on PATH, Google Chrome, Python with edge-tts.
 
+As a global command (what the agent skill uses):
+
+```bash
+npm install -g github:jeider05/ai-video-evidence
+npx playwright install ffmpeg
+pip install edge-tts
+narrate --help
+```
+
+From a clone (development):
+
 ```bash
 npm install
 npx playwright install ffmpeg   # Playwright's screencast encoder (Chrome itself is used as the browser)
@@ -72,6 +83,10 @@ node bin/narrate.mjs run examples/bug-demo/narration-ego.json
 
 With `tts.fallback` (on by default), a failing engine falls through to the next one. Deepgram is skipped when no key is set.
 
+## Agent skill
+
+`skills/narrated-evidence/` is a `SKILL.md` skill: it tells an AI coding agent (Claude Code, Codex CLI, Cursor, Gemini CLI) when to record, how to write the script and how to check the result. It needs an agent with a local terminal, because `narrate` runs on the user's machine.
+
 ## Script
 
 See `skills/narrated-evidence/SKILL.md` for the full action reference, and the bug and feature templates in `skills/narrated-evidence/assets/`. `examples/bug-demo/` is a complete example that mocks its backend with `page.route` through an `actionsModule`.
@@ -84,3 +99,7 @@ See `skills/narrated-evidence/SKILL.md` for the full action reference, and the b
 - ego lite (0.6.2.7) keeps Agent task-space windows hidden; only the space selected in its UI is shown. The runner shows the window with Win32 `ShowWindow`, but ego does not paint it that way: in our tests the frame stayed dark until the space is selected in ego. The runner then waits 60 s, asking you to switch ego to space `narrate-<name>`, and fails if the page never appears. Forcing the window visible can leave ego's space switcher out of sync until you click a space.
 - gdigrab mode collects no `evidence.json` (no network/console listeners): read the evidence from a Playwright run or the DevTools of ego.
 - Never type passwords in gdigrab mode either: sign in to the app in ego beforehand; the runner's task space opens in your default ego profile (not yet verified against a real login).
+
+## License
+
+MIT, see [LICENSE](LICENSE).
