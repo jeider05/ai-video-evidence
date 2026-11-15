@@ -2,18 +2,41 @@
   "name": "ai-video-evidence",
   "version": "1.0.0",
   "description": "Narrated video evidence (voice + screen) for features and bugs",
-  "main": "index.js",
+  "keywords": [
+    "video",
+    "evidence",
+    "narration",
+    "tts",
+    "playwright",
+    "qa",
+    "agent-skill"
+  ],
+  "author": "jsilgado",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeider05/ai-video-evidence.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "narrate": "bin/narrate.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "examples/bug-demo/*.mjs",
+    "examples/bug-demo/*.json",
+    "examples/bug-demo/app/",
+    "README.md"
+  ],
   "scripts": {
     "test": "node --test \"test/*.test.mjs\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "playwright": "^1.65.0"
-  },
-  "type": "module",
-  "bin": {
-    "narrate": "bin/narrate.mjs"
   }
 }

@@ -6,6 +6,17 @@ Narrated video evidence (voice + screen) for features and bugs. You write a `nar
 
 Requirements: Node 22+, ffmpeg and ffprobe on PATH, Google Chrome, Python with edge-tts.
 
+As a global command (what the agent skill uses):
+
+```bash
+npm install -g github:jeider05/ai-video-evidence
+npx playwright install ffmpeg
+pip install edge-tts
+narrate --help
+```
+
+From a clone (development):
+
 ```bash
 npm install
 npx playwright install ffmpeg   # Playwright's screencast encoder (Chrome itself is used as the browser)
@@ -71,6 +82,10 @@ node bin/narrate.mjs run examples/bug-demo/narration-ego.json
 | `sapi` | Offline last resort (Windows), `Microsoft Helena Desktop` | none |
 
 With `tts.fallback` (on by default), a failing engine falls through to the next one. Deepgram is skipped when no key is set.
+
+## Agent skill
+
+`skills/narrated-evidence/` is a `SKILL.md` skill: it tells an AI coding agent (Claude Code, Codex CLI, Cursor, Gemini CLI) when to record, how to write the script and how to check the result. It needs an agent with a local terminal, because `narrate` runs on the user's machine.
 
 ## Script
 
